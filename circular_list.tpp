@@ -3,13 +3,11 @@
 
 #include "circular_list.h"
 
-
 template <typename T>
 CircularList<T>::Node::Node(const T& value) : data(value), next(nullptr), prev(nullptr) {}
 
 template <typename T>
 CircularList<T>::Node::Node(T&& value) : data(std::move(value)), next(nullptr), prev(nullptr) {}
-
 
 template <typename T>
 CircularList<T>::CircularList() : current(nullptr), size(0) {}
@@ -18,12 +16,28 @@ template <typename T>
 CircularList<T>::CircularList(const CircularList& other) : current(nullptr), size(0) {
     if (other.isEmpty()) return;
 
-    Node* otherCurrent = other.current;
-    do {
-        insertAfter(otherCurrent->data);
-        if (size > 1) next();
-        otherCurrent = otherCurrent->next;
-    } while (otherCurrent != other.current);
+    T* elements = new T[other.size];
+
+    Node* walk = other.current;
+    for (int i = 0; i < other.size; i++) {
+        elements[i] = walk->data;
+        walk = walk->next;
+    }
+
+    for (int i = 0; i < other.size; i++) {
+        if (isEmpty()) {
+            insertAfter(elements[i]);
+        } else {
+            insertAfter(elements[i]);
+            next();
+        }
+    }
+
+    while (current->data != elements[0]) {
+        current = current->next;
+    }
+
+    delete[] elements;
 }
 
 template <typename T>
@@ -40,18 +54,38 @@ CircularList<T>::~CircularList() {
 
 template <typename T>
 CircularList<T>& CircularList<T>::operator=(const CircularList& other) {
-    if (this != &other) {
-        clear();
-
-        if (!other.isEmpty()) {
-            Node* otherCurrent = other.current;
-            do {
-                insertAfter(otherCurrent->data);
-                if (size > 1) next();
-                otherCurrent = otherCurrent->next;
-            } while (otherCurrent != other.current);
-        }
+    if (this == &other) {
+        return *this;
     }
+
+    clear();
+
+    if (!other.isEmpty()) {
+        T* elements = new T[other.size];
+
+        Node* walk = other.current;
+        for (int i = 0; i < other.size; i++) {
+            elements[i] = walk->data;
+            walk = walk->next;
+        }
+
+        for (int i = 0; i < other.size; i++) {
+            if (isEmpty()) {
+                insertAfter(elements[i]);
+            } else {
+                insertAfter(elements[i]);
+                next();
+            }
+        }
+
+
+        while (current->data != elements[0]) {
+            current = current->next;
+        }
+
+        delete[] elements;
+    }
+
     return *this;
 }
 
@@ -155,7 +189,6 @@ void CircularList<T>::removeCurrent() {
     }
 }
 
-
 template <typename T>
 void CircularList<T>::next() {
     if (isEmpty()) {
@@ -172,7 +205,6 @@ void CircularList<T>::prev() {
     current = current->prev;
 }
 
-
 template <typename T>
 T* CircularList<T>::getCurrent() {
     if (isEmpty()) {
@@ -188,7 +220,6 @@ const T* CircularList<T>::getCurrent() const {
     }
     return &(current->data);
 }
-
 
 template <typename T>
 bool CircularList<T>::isEmpty() const {
@@ -207,26 +238,24 @@ void CircularList<T>::clear() {
     }
 }
 
-
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const CircularList<T>& list) {
     if (list.isEmpty()) {
-        os << "[]";
+        os << "пуст";
         return os;
     }
 
-    os << "[";
-    typename CircularList<T>::Node* current = list.current;
-    do {
-        os << current->data;
-        current = current->next;
-        if (current != list.current) {
-            os << ", ";
+    CircularList<T> temp = list;
+
+    for (int i = 0; i < temp.getSize(); i++) {
+        os << *temp.getCurrent();
+        if (i < temp.getSize() - 1) {
+            os << " ";
         }
-    } while (current != list.current);
-    os << "]";
+        temp.next();
+    }
 
     return os;
 }
 
-#endif
+#endif // CIRCULAR_LIST_CPP
