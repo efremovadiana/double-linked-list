@@ -28,37 +28,30 @@ public:
     CircularList& operator=(const CircularList& other);
     CircularList& operator=(CircularList&& other) noexcept;
 
-
     void insertBefore(const T& value);
     void insertBefore(T&& value);
     void insertAfter(const T& value);
     void insertAfter(T&& value);
 
-
     void removeCurrent();
-
 
     void next();
     void prev();
 
-
     T* getCurrent();
     const T* getCurrent() const;
-
 
     bool isEmpty() const;
     int getSize() const;
     void clear();
 
-
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, const CircularList<U>& list);
 };
 
-
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const CircularList<T>& list);
 
-#include "circular_list.cpp"
+#include "circular_list.tpp"
 
 #endif // CIRCULAR_LIST_H_INCLUDED
